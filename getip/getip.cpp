@@ -32,9 +32,9 @@ map<string, string> GetIP(map<string, string> &macs)
     while (ifap->ifa_next)
     {
         struct sockaddr_in *addr = (struct sockaddr_in *)(ifap->ifa_addr);
-        if (addr->sin_family == AF_INET)
+        char *ip = inet_ntoa(addr->sin_addr);
+        if (addr->sin_family == AF_INET && string(ip) != "127.0.0.1")
         {
-            char *ip = inet_ntoa(addr->sin_addr);
             mib[5] = if_nametoindex(ifap->ifa_name);
             if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0)
             {
@@ -49,15 +49,10 @@ map<string, string> GetIP(map<string, string> &macs)
                 goto END;
             }
             if_msghdr *ifm = (if_msghdr *)macbuf;
-            struct sockaddr_dl *sdl = (struct sockaddr_dl *)(ifm);
-            char *ptr = LLADDR(sdl);
+            sockaddr_dl *sdl = (sockaddr_dl *)(ifm + 1);
+            unsigned char *ptr = (unsigned char *)LLADDR(sdl);
             sprintf(mac, "%02x:%02x:%02x:%02x:%02x:%02x",
-                    (unsigned char)ptr[0],
-                    (unsigned char)ptr[1],
-                    (unsigned char)ptr[2],
-                    (unsigned char)ptr[3],
-                    (unsigned char)ptr[4],
-                    (unsigned char)ptr[5]);
+                    ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5]);
             macs.insert(make_pair<string, string>(mac, ip));
             delete[] macbuf;
         }
