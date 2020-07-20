@@ -76,6 +76,8 @@ map<string, string> GetIP(map<string, string> &macs)
             if (!ioctl(fd, SIOCGIFADDR, (char *)&networks[count]))
             {
                 ip = inet_ntoa(((struct sockaddr_in *)(&networks[count].ifr_ifru.ifru_addr))->sin_addr);
+                if (strcmp(ip, "127.0.0.1") == 0)
+                    break;
             }
             if (!ioctl(fd, SIOCGIFHWADDR, (char *)&networks[count]))
             {

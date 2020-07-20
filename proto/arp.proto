@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package arp;
+
+message ARP {
+  string srcIP = 1;
+  string srcMac = 2;
+  string dstIP = 3;
+  string dstMac = 4;
+  enum ARPCode {
+    REQUEST = 0;
+    REPLY = 1;
+  }
+  ARPCode arpcode = 5;
+}
+
+message MacIP {
+  string ip = 1;
+  string mac = 2;
+}
+
+message MacIPs { repeated MacIP list = 1; }
